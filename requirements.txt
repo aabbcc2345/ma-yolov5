@@ -1,0 +1,30 @@
+# MA-YOLOv5 Requirements
+
+# Base dependencies
+numpy
+pandas
+matplotlib
+opencv-python
+scikit-learn
+scipy
+tqdm
+pyyaml
+
+# PyTorch
+torch
+ torchvision
+ torchaudio
+
+# Ultralytics YOLO
+albumentations
+ultralytics>=8.0.0
+
+# Development
+black
+isort
+flake8
+pre-commit
+
+# Optional
+tensorboard
+wandb
