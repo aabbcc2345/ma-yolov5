@@ -12,12 +12,12 @@ from ultralytics.nn.modules import Conv, C3, SPPF, Detect, Concat
 from types import SimpleNamespace
 import logging
 
-# 设置日志
+# Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class CoordinateAttention(nn.Module):
-    """坐标注意力模块 - 论文实现"""
+    """Coordinate Attention module - paper implementation"""
     def __init__(self, in_channels, out_channels, reduction=32):
         super(CoordinateAttention, self).__init__()
         self.pool_h = nn.AdaptiveAvgPool2d((None, 1))
@@ -54,7 +54,7 @@ class CoordinateAttention(nn.Module):
         return out
 
 class EfficientChannelAttention(nn.Module):
-    """高效通道注意力模块 - 论文实现"""
+    """Efficient Channel Attention module - paper implementation"""
     def __init__(self, in_channels, gamma=2, b=1):
         super(EfficientChannelAttention, self).__init__()
         t = int(abs((math.log(in_channels, 2) + b) / gamma))
@@ -74,7 +74,7 @@ class EfficientChannelAttention(nn.Module):
         return x * y.expand_as(x)
 
 class HybridAttentionModule(nn.Module):
-    """混合注意力增强模块 (CA + ECA) - 论文核心创新"""
+    """Hybrid Attention Enhancement Module (CA + ECA) - paper core innovation"""
     def __init__(self, in_channels, out_channels):
         super(HybridAttentionModule, self).__init__()
         self.ca = CoordinateAttention(in_channels, out_channels)
@@ -86,7 +86,7 @@ class HybridAttentionModule(nn.Module):
         return x
 
 def create_yolov5_config():
-    """创建YOLOv5s配置文件"""
+    """Create YOLOv5s configuration file"""
     config = {
         'nc': 7,
         'depth_multiple': 0.33,
@@ -134,18 +134,18 @@ def create_yolov5_config():
     return 'configs/yolov5s_radio_tower.yaml'
 
 def create_ma_yolov5_config():
-    """创建MA-YOLOv5配置文件（与YOLOv5结构相同，但会在代码中添加注意力）"""
-    return create_yolov5_config()  # 结构相同，注意力在代码中添加
+    """Create MA-YOLOv5 configuration file (same structure as YOLOv5, attention added in code)"""
+    return create_yolov5_config()  # Same structure, attention added in code
 
 def add_hybrid_attention_to_model(model):
-    """为模型添加混合注意力模块 - 在关键位置"""
+    """Add hybrid attention modules to model - at key positions"""
     logger.info("Adding hybrid attention modules to model...")
     
-    # 关键位置索引（根据YOLOv5s结构）
-    backbone_end_positions = [9]    # Backbone结束位置（SPPF后）
-    neck_positions = [13, 17]       # Neck特征融合后位置
+    # Key position indices (based on YOLOv5s structure)
+    backbone_end_positions = [9]    # Backbone end position (after SPPF)
+    neck_positions = [13, 17]       # Neck feature fusion positions
     
-    # 添加Backbone结束位置的混合注意力
+    # Add hybrid attention at backbone end position
     for pos in backbone_end_positions:
         if pos < len(model.model):
             module = model.model[pos]
@@ -155,7 +155,7 @@ def add_hybrid_attention_to_model(model):
                 module.add_module('hybrid_attention', hybrid_att)
                 logger.info(f"Added hybrid attention at backbone position {pos}")
     
-    # 添加Neck位置的混合注意力
+    # Add hybrid attention at neck positions
     for pos in neck_positions:
         if pos < len(model.model):
             module = model.model[pos]
@@ -168,7 +168,7 @@ def add_hybrid_attention_to_model(model):
     return model
 
 def create_dataset_config():
-    """创建数据集配置文件"""
+    """Create dataset configuration file"""
     data_config = {
         'path': '../datasets/radio_tower',
         'train': 'images/train',
@@ -188,12 +188,12 @@ def create_dataset_config():
     return 'data/radio_tower.yaml'
 
 def train_model(model_name, model, config_path, data_path, custom_model=False):
-    """训练模型函数"""
+    """Train model function"""
     logger.info(f"Starting training for {model_name}...")
     
     train_args = {
         'data': data_path,
-        'epochs': 100,  # 为了快速演示，使用100轮，论文是300轮
+        'epochs': 100,  # For quick demonstration, using 100 epochs, paper uses 300 epochs
         'batch': 16,
         'imgsz': 640,
         'device': 0,
@@ -214,17 +214,17 @@ def train_model(model_name, model, config_path, data_path, custom_model=False):
     }
     
     if custom_model:
-        # 对于自定义模型，使用model.train方法
+        # For custom models, use model.train method
         results = model.train(**train_args)
     else:
-        # 对于ultralytics模型，直接训练
+        # For ultralytics models, train directly
         results = model.train(**train_args)
     
     logger.info(f"Training completed for {model_name}")
     return results
 
 def validate_model(model_name, model_path, data_path):
-    """验证模型性能"""
+    """Validate model performance"""
     logger.info(f"Validating {model_name}...")
     
     model = YOLO(model_path)
@@ -245,9 +245,9 @@ def validate_model(model_name, model_path, data_path):
     return val_results
 
 def compare_models():
-    """主函数：对比YOLOv5和MA-YOLOv5"""
+    """Main function: Compare YOLOv5 and MA-YOLOv5"""
     
-    # 创建配置文件
+    # Create configuration files
     yolov5_config = create_yolov5_config()
     ma_yolov5_config = create_ma_yolov5_config()
     data_config = create_dataset_config()
@@ -257,65 +257,65 @@ def compare_models():
     logger.info(f"MA-YOLOv5 config: {ma_yolov5_config}")
     logger.info(f"Data config: {data_config}")
     
-    # 创建模型对比实验
+    # Create model comparison experiment
     results = {}
     
     try:
-        # 实验1：训练基准YOLOv5模型
+        # Experiment 1: Train baseline YOLOv5 model
         logger.info("="*50)
         logger.info("EXPERIMENT 1: Training Baseline YOLOv5")
         logger.info("="*50)
         
-        # 加载基准YOLOv5模型
+        # Load baseline YOLOv5 model
         yolov5_model = YOLO('yolov5s.pt')
         
-        # 修改类别数为7
+        # Modify class count to 7
         yolov5_model.model.nc = 7
         yolov5_model.model.names = ['smoke_fire', 'birds', 'construction_vehicles', 
                                    'hanging_objects', 'debris_piles', 'wall_collapses', 'bird_nests']
         
-        # 训练YOLOv5
+        # Train YOLOv5
         yolov5_results = train_model('yolov5_baseline', yolov5_model, yolov5_config, data_config)
         results['yolov5_baseline'] = yolov5_results
         
-        # 实验2：训练MA-YOLOv5模型
+        # Experiment 2: Train MA-YOLOv5 model
         logger.info("="*50)
         logger.info("EXPERIMENT 2: Training MA-YOLOv5 with Hybrid Attention")
         logger.info("="*50)
         
-        # 加载MA-YOLOv5模型（基于YOLOv5s）
+        # Load MA-YOLOv5 model (based on YOLOv5s)
         ma_yolov5_model = YOLO('yolov5s.pt')
         
-        # 修改类别数
+        # Modify class count
         ma_yolov5_model.model.nc = 7
         ma_yolov5_model.model.names = ['smoke_fire', 'birds', 'construction_vehicles', 
                                       'hanging_objects', 'debris_piles', 'wall_collapses', 'bird_nests']
         
-        # 添加混合注意力模块
+        # Add hybrid attention modules
         ma_yolov5_model = add_hybrid_attention_to_model(ma_yolov5_model)
         
-        # 训练MA-YOLOv5
+        # Train MA-YOLOv5
         ma_yolov5_results = train_model('ma_yolov5', ma_yolov5_model, ma_yolov5_config, data_config, custom_model=True)
         results['ma_yolov5'] = ma_yolov5_results
         
-        # 实验3：性能验证对比
+        # Experiment 3: Performance validation comparison
         logger.info("="*50)
         logger.info("EXPERIMENT 3: Performance Validation Comparison")
         logger.info("="*50)
         
-        # 验证YOLOv5
+        # Validate YOLOv5
         yolov5_best_model_path = 'runs/train/yolov5_baseline/yolov5_baseline_exp/weights/best.pt'
         if os.path.exists(yolov5_best_model_path):
             yolov5_val = validate_model('YOLOv5_Baseline', yolov5_best_model_path, data_config)
             results['yolov5_validation'] = yolov5_val
         
-        # 验证MA-YOLOv5
+        # Validate MA-YOLOv5
         ma_yolov5_best_model_path = 'runs/train/ma_yolov5/ma_yolov5_exp/weights/best.pt'
         if os.path.exists(ma_yolov5_best_model_path):
             ma_yolov5_val = validate_model('MA-YOLOv5', ma_yolov5_best_model_path, data_config)
             results['ma_yolov5_validation'] = ma_yolov5_val
         
-        # 结果对比分析
+        # Results comparison analysis
         logger.info("="*50)
         logger.info("RESULTS COMPARISON ANALYSIS")
         logger.info("="*50)
@@ -328,7 +328,7 @@ def compare_models():
             logger.info(f"MA-YOLOv5 mAP@0.5: {ma_yolov5_map:.3f}")
             logger.info(f"Improvement: {ma_yolov5_map - yolov5_map:.3f} ({((ma_yolov5_map - yolov5_map) / yolov5_map * 100):.1f}%)")
             
-            # 论文中报告2.2%的mAP提升
+            # Paper reports 2.2% mAP improvement
             expected_improvement = 0.022
             actual_improvement = (ma_yolov5_map - yolov5_map) / yolov5_map
             
@@ -337,7 +337,7 @@ def compare_models():
             else:
                 logger.info("⚠️  MA-YOLOv5 improvement below expected (2.2%)")
         
-        # 保存实验摘要
+        # Save experiment summary
         experiment_summary = {
             'experiment_date': time.strftime('%Y-%m-%d %H:%M:%S'),
             'yolov5_config': yolov5_config,
@@ -359,13 +359,13 @@ def compare_models():
     return results
 
 def create_sample_dataset_structure():
-    """创建示例数据集结构（用于测试）"""
+    """Create sample dataset structure (for testing)"""
     os.makedirs('datasets/radio_tower/images/train', exist_ok=True)
     os.makedirs('datasets/radio_tower/images/val', exist_ok=True)
     os.makedirs('datasets/radio_tower/labels/train', exist_ok=True)
     os.makedirs('datasets/radio_tower/labels/val', exist_ok=True)
     
-    # 创建示例说明文件
+    # Create sample README file
     with open('datasets/radio_tower/README.md', 'w') as f:
         f.write("# Radio Tower Inspection Dataset\n")
         f.write("This is a sample dataset structure for radio tower inspection.\n")
@@ -380,10 +380,10 @@ def create_sample_dataset_structure():
     logger.info("Please replace with your actual radio tower inspection dataset")
 
 if __name__ == '__main__':
-    # 创建示例数据集结构
+    # Create sample dataset structure
     create_sample_dataset_structure()
     
-    # 检查是否安装了ultralytics
+    # Check if ultralytics is installed
     try:
         import ultralytics
         logger.info(f"Ultralytics version: {ultralytics.__version__}")
@@ -391,7 +391,7 @@ if __name__ == '__main__':
         logger.error("Please install ultralytics: pip install ultralytics")
         exit(1)
     
-    # 运行对比实验
+    # Run comparison experiment
     logger.info("Starting YOLOv5 vs MA-YOLOv5 comparison experiment...")
     experiment_results = compare_models()
     
