@@ -99,11 +99,6 @@ The hybrid attention module is integrated at key positions:
 - After the SPPF layer in the backbone
 - After feature fusion nodes in the neck
 
-## References
-
-- YOLOv5: https://github.com/ultralytics/yolov5
-- Coordinate Attention: https://arxiv.org/abs/2103.02907
-- Efficient Channel Attention: https://arxiv.org/abs/1910.03151
 
 ## Citation
 
@@ -112,8 +107,8 @@ If you use this code in your research, please cite our paper:
 ```
 @article{MA-YOLOv52026,
   title={MA-YOLOv5: Enhanced YOLOv5 with Hybrid Attention for Radio Tower Inspection},
-  author={Your Name},
-  journal={Journal Name},
+  author={Ni zhengqi},
+  journal={springer nature},
   year={2026}
 }
 ```
