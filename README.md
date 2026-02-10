@@ -59,11 +59,27 @@ pip install -r requirements.txt
 
 ### 2. Prepare Dataset
 
-Replace the sample dataset structure in `datasets/radio_tower/` with your actual dataset:
+#### 2.1 Dataset Source
 
-- Place training images in `datasets/radio_tower/images/train/`
-- Place validation images in `datasets/radio_tower/images/val/`
-- Place corresponding YOLO format labels in the `labels/` directory
+The dataset can be obtained from Baidu Netdisk:
+
+- **Dataset Name**: tower_detection
+- **Link**: https://pan.baidu.com/s/15Ymeg-6NHgloy826UnIg2A
+- **Note**: For verification code, please send an email to 3149391417@qq.com
+
+#### 2.2 Dataset Structure
+
+After downloading, extract the dataset to the `datasets/radio_tower/` directory:
+
+```
+datasets/radio_tower/
+├── images/
+│   ├── train/          # Training images
+│   └── val/            # Validation images
+└── labels/
+    ├── train/          # Training labels (YOLO format)
+    └── val/            # Validation labels (YOLO format)
+```
 
 ### 3. Run Training
 
